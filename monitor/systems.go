@@ -33,7 +33,7 @@ type Systems struct {
 }
 
 // Initialize the system
-func (i *Systems) Initialize(w *ecs.World, win *opengl.Window) {
+func (i *Systems) Initialize(w *ecs.World, _ *opengl.Window) {
 	i.systemsRes = ecs.NewResource[app.Systems](w)
 
 	i.text = text.New(px.V(0, 0), defaultFont)
@@ -42,14 +42,14 @@ func (i *Systems) Initialize(w *ecs.World, win *opengl.Window) {
 	i.text.AlignedTo(px.BottomRight)
 	i.helpText.AlignedTo(px.BottomRight)
 
-	fmt.Fprint(i.helpText, "Toggle [u]i systems, [f]ields, [t]ypes, [v]alues or [n]ames, scroll with arrows or mouse wheel.")
+	_, _ = fmt.Fprint(i.helpText, "Toggle [u]i systems, [f]ields, [t]ypes, [v]alues or [n]ames, scroll with arrows or mouse wheel.")
 }
 
 // Update the drawer.
-func (i *Systems) Update(w *ecs.World) {}
+func (i *Systems) Update(_ *ecs.World) {}
 
 // UpdateInputs handles input events of the previous frame update.
-func (i *Systems) UpdateInputs(w *ecs.World, win *opengl.Window) {
+func (i *Systems) UpdateInputs(_ *ecs.World, win *opengl.Window) {
 	if win.JustPressed(px.KeyF) {
 		i.HideFields = !i.HideFields
 		return
@@ -90,7 +90,7 @@ func (i *Systems) UpdateInputs(w *ecs.World, win *opengl.Window) {
 }
 
 // Draw the system
-func (i *Systems) Draw(w *ecs.World, win *opengl.Window) {
+func (i *Systems) Draw(_ *ecs.World, win *opengl.Window) {
 	i.helpText.Draw(win, px.IM.Moved(px.V(10, 20)))
 
 	if !i.systemsRes.Has() {
@@ -103,7 +103,7 @@ func (i *Systems) Draw(w *ecs.World, win *opengl.Window) {
 	y0 := height - 10.0
 
 	i.text.Clear()
-	fmt.Fprint(i.text, "Systems\n\n")
+	_, _ = fmt.Fprint(i.text, "Systems\n\n")
 
 	scroll := i.scroll
 
@@ -118,22 +118,22 @@ func (i *Systems) Draw(w *ecs.World, win *opengl.Window) {
 		tp := val.Type()
 
 		if scroll <= 0 {
-			fmt.Fprintf(i.text, "  %s\n", tp.Name())
+			_, _ = fmt.Fprintf(i.text, "  %s\n", tp.Name())
 		}
 		scroll--
 
 		if !i.HideFields {
-			for k := 0; k < val.NumField(); k++ {
+			for k := range val.NumField() {
 				field := tp.Field(k)
 				if field.IsExported() {
 					if scroll <= 0 {
-						i.printField(i.text, tp, field, val.Field(k))
+						i.printField(i.text, field, val.Field(k))
 					}
 					scroll--
 				}
 			}
 			if scroll <= 0 {
-				fmt.Fprint(i.text, "\n")
+				_, _ = fmt.Fprint(i.text, "\n")
 			}
 			scroll--
 		}
@@ -144,28 +144,28 @@ func (i *Systems) Draw(w *ecs.World, win *opengl.Window) {
 		return
 	}
 
-	fmt.Fprint(i.text, "\nUI Systems\n\n")
+	_, _ = fmt.Fprint(i.text, "\nUI Systems\n\n")
 	for _, sys := range systems.UISystems() {
 		val := reflect.ValueOf(sys).Elem()
 		tp := val.Type()
 
 		if scroll <= 0 {
-			fmt.Fprintf(i.text, "  %s\n", tp.Name())
+			_, _ = fmt.Fprintf(i.text, "  %s\n", tp.Name())
 		}
 		scroll--
 
 		if !i.HideFields {
-			for k := 0; k < val.NumField(); k++ {
+			for k := range val.NumField() {
 				field := tp.Field(k)
 				if field.IsExported() {
 					if scroll <= 0 {
-						i.printField(i.text, tp, field, val.Field(k))
+						i.printField(i.text, field, val.Field(k))
 					}
 					scroll--
 				}
 			}
 			if scroll <= 0 {
-				fmt.Fprint(i.text, "\n")
+				_, _ = fmt.Fprint(i.text, "\n")
 			}
 			scroll--
 		}
@@ -174,17 +174,17 @@ func (i *Systems) Draw(w *ecs.World, win *opengl.Window) {
 	i.text.Draw(win, px.IM.Moved(px.V(x0, y0)))
 }
 
-func (i *Systems) printField(w io.Writer, tp reflect.Type, field reflect.StructField, value reflect.Value) {
-	fmt.Fprintf(w, "    %-20s ", field.Name)
+func (i *Systems) printField(w io.Writer, field reflect.StructField, value reflect.Value) {
+	_, _ = fmt.Fprintf(w, "    %-20s ", field.Name)
 	if !i.HideTypes {
-		fmt.Fprintf(w, "    %-16s ", value.Type())
+		_, _ = fmt.Fprintf(w, "    %-16s ", value.Type())
 	}
 	if !i.HideValues {
 		if i.HideNames {
-			fmt.Fprintf(w, "= %v", value.Interface())
+			_, _ = fmt.Fprintf(w, "= %v", value.Interface())
 		} else {
-			fmt.Fprintf(w, "= %+v", value.Interface())
+			_, _ = fmt.Fprintf(w, "= %+v", value.Interface())
 		}
 	}
-	fmt.Fprint(i.text, "\n")
+	_, _ = fmt.Fprint(i.text, "\n")
 }

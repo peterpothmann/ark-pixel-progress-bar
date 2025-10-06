@@ -28,7 +28,7 @@ type ImageRGB struct {
 }
 
 // Initialize the drawer.
-func (i *ImageRGB) Initialize(w *ecs.World, win *opengl.Window) {
+func (i *ImageRGB) Initialize(w *ecs.World, _ *opengl.Window) {
 	i.Observer.Initialize(w)
 
 	if i.Layers == nil {
@@ -74,14 +74,14 @@ func (i *ImageRGB) Update(w *ecs.World) {
 }
 
 // UpdateInputs handles input events of the previous frame update.
-func (i *ImageRGB) UpdateInputs(w *ecs.World, win *opengl.Window) {}
+func (i *ImageRGB) UpdateInputs(_ *ecs.World, _ *opengl.Window) {}
 
 // Draw the drawer.
 func (i *ImageRGB) Draw(w *ecs.World, win *opengl.Window) {
 	cannels := i.Observer.Values(w)
 
 	values := append([]float64{}, i.Min...)
-	for j := 0; j < i.dataLen; j++ {
+	for j := range i.dataLen {
 		for i, k := range i.Layers {
 			if k >= 0 {
 				values[i] = cannels[k][j]

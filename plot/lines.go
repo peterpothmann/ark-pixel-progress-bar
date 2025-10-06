@@ -38,7 +38,7 @@ type Lines struct {
 }
 
 // Initialize the drawer.
-func (l *Lines) Initialize(w *ecs.World, win *opengl.Window) {
+func (l *Lines) Initialize(w *ecs.World, _ *opengl.Window) {
 	l.Observer.Initialize(w)
 
 	l.headers = l.Observer.Header()
@@ -57,7 +57,7 @@ func (l *Lines) Initialize(w *ecs.World, win *opengl.Window) {
 
 	if len(l.Y) == 0 {
 		l.yIndices = make([]int, 0, len(l.headers))
-		for i := 0; i < len(l.headers); i++ {
+		for i := range l.headers {
 			if i != l.xIndex {
 				l.yIndices = append(l.yIndices, i)
 			}
@@ -81,7 +81,7 @@ func (l *Lines) Update(w *ecs.World) {
 }
 
 // UpdateInputs handles input events of the previous frame update.
-func (l *Lines) UpdateInputs(w *ecs.World, win *opengl.Window) {}
+func (l *Lines) UpdateInputs(_ *ecs.World, _ *opengl.Window) {}
 
 // Draw the drawer.
 func (l *Lines) Draw(w *ecs.World, win *opengl.Window) {
@@ -110,7 +110,7 @@ func (l *Lines) Draw(w *ecs.World, win *opengl.Window) {
 	p.Legend = plot.NewLegend()
 	p.Legend.TextStyle.Font.Variant = "Mono"
 
-	for i := 0; i < len(l.series); i++ {
+	for i := range l.series {
 		idx := l.yIndices[i]
 		lines, err := plotter.NewLine(l.series[i])
 		if err != nil {

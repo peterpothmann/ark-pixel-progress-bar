@@ -36,7 +36,7 @@ type Scatter struct {
 }
 
 // Initialize the drawer.
-func (s *Scatter) Initialize(w *ecs.World, win *opengl.Window) {
+func (s *Scatter) Initialize(w *ecs.World, _ *opengl.Window) {
 	numObs := len(s.Observers)
 	if len(s.X) != 0 && len(s.X) != numObs {
 		panic("length of X not equal to length of Observers")
@@ -50,7 +50,7 @@ func (s *Scatter) Initialize(w *ecs.World, win *opengl.Window) {
 	s.labels = make([][]string, numObs)
 	s.series = make([][]plotter.XYs, numObs)
 	var ok bool
-	for i := 0; i < numObs; i++ {
+	for i := range numObs {
 		obs := s.Observers[i]
 		obs.Initialize(w)
 		header := obs.Header()
@@ -94,7 +94,7 @@ func (s *Scatter) Update(w *ecs.World) {
 }
 
 // UpdateInputs handles input events of the previous frame update.
-func (s *Scatter) UpdateInputs(w *ecs.World, win *opengl.Window) {}
+func (s *Scatter) UpdateInputs(_ *ecs.World, _ *opengl.Window) {}
 
 // Draw the drawer.
 func (s *Scatter) Draw(w *ecs.World, win *opengl.Window) {
@@ -123,9 +123,9 @@ func (s *Scatter) Draw(w *ecs.World, win *opengl.Window) {
 	p.Legend.TextStyle.Font.Variant = "Mono"
 
 	cnt := 0
-	for i := 0; i < len(s.xIndices); i++ {
+	for i := range s.xIndices {
 		ys := s.yIndices[i]
-		for j := 0; j < len(ys); j++ {
+		for j := range ys {
 			points, err := plotter.NewScatter(s.series[i][j])
 			if err != nil {
 				panic(err)
@@ -151,11 +151,11 @@ func (s *Scatter) Draw(w *ecs.World, win *opengl.Window) {
 func (s *Scatter) updateData(w *ecs.World) {
 	xis := s.xIndices
 
-	for i := 0; i < len(xis); i++ {
+	for i := range xis {
 		data := s.Observers[i].Values(w)
 		xi := xis[i]
 		ys := s.yIndices[i]
-		for j := 0; j < len(ys); j++ {
+		for j := range ys {
 			s.series[i][j] = s.series[i][j][:0]
 			for _, row := range data {
 				s.series[i][j] = append(s.series[i][j], plotter.XY{X: row[xi], Y: row[ys[j]]})

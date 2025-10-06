@@ -93,7 +93,7 @@ type Monitor struct {
 }
 
 // Initialize the system
-func (m *Monitor) Initialize(w *ecs.World, win *opengl.Window) {
+func (m *Monitor) Initialize(_ *ecs.World, _ *opengl.Window) {
 	if m.PlotCapacity <= 0 {
 		m.PlotCapacity = 300
 	}
@@ -114,11 +114,11 @@ func (m *Monitor) Initialize(w *ecs.World, win *opengl.Window) {
 	for i := 0; i < len(m.timeSeries.Text); i++ {
 		m.timeSeries.Text[i] = text.New(px.V(0, 0), defaultFont)
 	}
-	fmt.Fprintf(m.timeSeries.Text[tsEntities], "Entities")
-	fmt.Fprintf(m.timeSeries.Text[tsEntityCap], "Capacity")
-	fmt.Fprintf(m.timeSeries.Text[tsMemory], "Memory")
-	fmt.Fprintf(m.timeSeries.Text[tsMemoryUsed], "Memory used")
-	fmt.Fprintf(m.timeSeries.Text[tsTickPerSec], "TPS")
+	_, _ = fmt.Fprintf(m.timeSeries.Text[tsEntities], "Entities")
+	_, _ = fmt.Fprintf(m.timeSeries.Text[tsEntityCap], "Capacity")
+	_, _ = fmt.Fprintf(m.timeSeries.Text[tsMemory], "Memory")
+	_, _ = fmt.Fprintf(m.timeSeries.Text[tsMemoryUsed], "Memory used")
+	_, _ = fmt.Fprintf(m.timeSeries.Text[tsTickPerSec], "TPS")
 
 	m.text = text.New(px.V(0, 0), defaultFont).AlignedTo(px.TopRight)
 	m.text.Color = color.RGBA{200, 200, 200, 255}
@@ -148,7 +148,7 @@ func (m *Monitor) Update(w *ecs.World) {
 }
 
 // UpdateInputs handles input events of the previous frame update.
-func (m *Monitor) UpdateInputs(w *ecs.World, win *opengl.Window) {}
+func (m *Monitor) UpdateInputs(_ *ecs.World, _ *opengl.Window) {}
 
 // Draw the system
 func (m *Monitor) Draw(w *ecs.World, win *opengl.Window) {
@@ -161,18 +161,18 @@ func (m *Monitor) Draw(w *ecs.World, win *opengl.Window) {
 	m.summary.Clear()
 	mem, units := toMemText(stats.Memory)
 	split := width < 1080
-	fmt.Fprintf(
+	_, _ = fmt.Fprintf(
 		m.summary, "Tick: %8d  |  Ent.: %7d  |  Archetypes: %3d  |  Comp: %3d  |  Cache: %3d",
 		m.step, stats.Entities.Used, len(stats.Archetypes), len(stats.ComponentTypes), stats.CachedFilters,
 	)
 	if split {
-		fmt.Fprintf(
+		_, _ = fmt.Fprintf(
 			m.summary, "\nMem: %6.1f %s  |  TPS: %8.1f  |  TPT: %6.2f ms  |  Time: %s",
 			mem, units, m.frameTimer.FPS(),
 			float64(m.frameTimer.FrameTime().Microseconds())/1000, time.Since(m.startTime).Round(time.Second),
 		)
 	} else {
-		fmt.Fprintf(
+		_, _ = fmt.Fprintf(
 			m.summary, "  |  Mem: %6.1f %s  |  TPS: %6.1f  |  TPT: %6.2f ms  |  Time: %s",
 			mem, units, m.frameTimer.FPS(),
 			float64(m.frameTimer.FrameTime().Microseconds())/1000, time.Since(m.startTime).Round(time.Second),
@@ -181,7 +181,7 @@ func (m *Monitor) Draw(w *ecs.World, win *opengl.Window) {
 
 	numNodes := len(m.archetypes.Components)
 	maxCapacity := 0
-	for i := 0; i < numNodes; i++ {
+	for i := range numNodes {
 		cap := stats.Archetypes[m.archetypes.Indices[i]].Capacity
 		if cap > maxCapacity {
 			maxCapacity = cap
@@ -225,9 +225,9 @@ func (m *Monitor) Draw(w *ecs.World, win *opengl.Window) {
 				archHeight = 20
 			}
 			m.drawArchetypeScales(
-				win, x0, y0-archHeight, archWidth, archHeight, maxCapacity,
+				win, x0, y0-archHeight, archWidth, maxCapacity,
 			)
-			for i := 0; i < numNodes; i++ {
+			for i := range numNodes {
 				idx := m.archetypes.Indices[i]
 				m.drawArchetype(
 					win, x0, y0-float64(i+2)*archHeight, archWidth, archHeight,
@@ -236,7 +236,7 @@ func (m *Monitor) Draw(w *ecs.World, win *opengl.Window) {
 			}
 		} else {
 			m.text.Clear()
-			fmt.Fprintf(m.text, "Too many archetypes")
+			_, _ = fmt.Fprintf(m.text, "Too many archetypes")
 			m.text.Draw(win, px.IM.Moved(px.V(x0, y0-10)))
 		}
 	}
@@ -245,7 +245,7 @@ func (m *Monitor) Draw(w *ecs.World, win *opengl.Window) {
 	dr.Clear()
 }
 
-func (m *Monitor) drawArchetypeScales(win *opengl.Window, x, y, w, h float64, max int) {
+func (m *Monitor) drawArchetypeScales(win *opengl.Window, x, y, w float64, max int) {
 	dr := &m.drawer
 	step := calcTicksStep(float64(max), 8)
 	if step < 1 {
@@ -267,7 +267,7 @@ func (m *Monitor) drawArchetypeScales(win *opengl.Window, x, y, w, h float64, ma
 
 		val := i * int(step)
 		m.text.Clear()
-		fmt.Fprintf(m.text, "%d", val)
+		_, _ = fmt.Fprintf(m.text, "%d", val)
 		m.text.Draw(win, px.IM.Moved(px.V(math.Floor(x+xi*drawStep-m.text.Bounds().W()/2), y+10)))
 	}
 }
@@ -308,12 +308,12 @@ func (m *Monitor) drawArchetype(win *opengl.Window, x, y, w, h float64, max int,
 
 	if arch.NumRelations > 0 {
 		m.text.Clear()
-		fmt.Fprintf(m.text, "%5d / %5d", len(arch.Tables), len(arch.Tables)+arch.FreeTables)
+		_, _ = fmt.Fprintf(m.text, "%5d / %5d", len(arch.Tables), len(arch.Tables)+arch.FreeTables)
 		m.text.Draw(win, px.IM.Moved(px.V(x+5, y+3)))
 	}
 
 	m.textRight.Clear()
-	fmt.Fprintf(m.textRight, "%d", arch.Size)
+	_, _ = fmt.Fprintf(m.textRight, "%d", arch.Size)
 	m.textRight.Draw(win, px.IM.Moved(px.V(x+w-5, y+3)))
 }
 
@@ -329,7 +329,7 @@ func (m *Monitor) drawPlot(win *opengl.Window, x, y, w, h float64, series ...tim
 	for _, series := range series {
 		values := m.timeSeries.Values[series]
 		l := values.Len()
-		for i := 0; i < l; i++ {
+		for i := range l {
 			v := values.Get(i)
 			if v > yMax {
 				yMax = v
@@ -345,7 +345,7 @@ func (m *Monitor) drawPlot(win *opengl.Window, x, y, w, h float64, series ...tim
 			xStep := w / float64(numValues-1)
 			yScale := 0.95 * h / float64(yMax)
 
-			for i := 0; i < numValues-1; i++ {
+			for i := range numValues - 1 {
 				xi := float64(i)
 				x1, x2 := xi*xStep, xi*xStep+xStep
 				y1, y2 := float64(values.Get(i))*yScale, float64(values.Get(i+1))*yScale
@@ -385,7 +385,7 @@ type timeSeries struct {
 
 func newTimeSeries(cap int) timeSeries {
 	ts := timeSeries{}
-	for i := 0; i < int(tsLast); i++ {
+	for i := range int(tsLast) {
 		ts.Values[i] = newRingBuffer[int](cap)
 	}
 	return ts
@@ -450,18 +450,18 @@ func (a *archetypes) Update(stats *stats.World) {
 	a.Indices = a.Indices[:0]
 
 	numNodes := len(stats.Archetypes)
-	for i := 0; i < numNodes; i++ {
+	for i := range numNodes {
 		node := &stats.Archetypes[i]
 		text := text.New(px.V(0, 0), defaultFont)
 		text.Color = color.RGBA{200, 200, 200, 255}
 		sb := strings.Builder{}
 		sb.WriteString(fmt.Sprintf("              %4d B  ", node.MemoryPerEntity))
 		types := node.ComponentTypes
-		for j := 0; j < len(types); j++ {
+		for j := range types {
 			sb.WriteString(types[j].Name())
 			sb.WriteString(" ")
 		}
-		text.WriteString(sb.String())
+		_, _ = text.WriteString(sb.String())
 		a.Components = append(a.Components, text)
 		a.Indices = append(a.Indices, i)
 	}
