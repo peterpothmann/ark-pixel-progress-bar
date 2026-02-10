@@ -158,7 +158,40 @@ func (m *Monitor) Draw(w *ecs.World, win *opengl.Window) {
 	width := win.Canvas().Bounds().W()
 	height := win.Canvas().Bounds().H()
 
-	m.summary.Clear()
+	// === Progress Bar Start ===
+	progressBarWidth := width - 20
+	progressBarHeight := 18.0
+	progressBarX := 10.0
+	progressBarY := height - progressBarHeight - 5
+
+	// Hole aktuellen Tick und maximale Ticks (hier als Beispiel 10000, passe das ggf. an!)
+	tick := m.step
+	maxTicks := int64(10000) // TODO: Hole die echte maximale Tickzahl aus deiner Simulation/Resource
+
+	progress := float64(tick) / float64(maxTicks)
+	if progress > 1.0 {
+		progress = 1.0
+	}
+
+	dr := &m.drawer
+	// Hintergrund
+	dr.Color = color.RGBA{60, 60, 60, 255}
+	dr.Push(px.V(progressBarX, progressBarY), px.V(progressBarX+progressBarWidth, progressBarY+progressBarHeight))
+	dr.Rectangle(0)
+	dr.Reset()
+
+	// Gefüllter Teil
+	dr.Color = color.RGBA{0, 180, 80, 255}
+	dr.Push(px.V(progressBarX, progressBarY), px.V(progressBarX+progressBarWidth*progress, progressBarY+progressBarHeight))
+	dr.Rectangle(0)
+	dr.Reset()
+
+	// Text in der Progress Bar
+	m.text.Clear()
+	_, _ = fmt.Fprintf(m.text, "Progress: %d / %d (%.0f%%)", tick, maxTicks, progress*100)
+	m.text.Draw(win, px.IM.Moved(px.V(progressBarX+progressBarWidth/2-m.text.Bounds().W()/2, progressBarY+progressBarHeight/2-m.text.Bounds().H()/2)))
+	// === Progress Bar End ===
+
 	mem, units := toMemText(stats.Memory)
 	split := width < 1080
 	_, _ = fmt.Fprintf(
@@ -187,7 +220,7 @@ func (m *Monitor) Draw(w *ecs.World, win *opengl.Window) {
 			maxCapacity = cap
 		}
 	}
-	dr := &m.drawer
+
 	x0 := 6.0
 	y0 := height - 18.0
 
